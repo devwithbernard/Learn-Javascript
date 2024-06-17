@@ -1,0 +1,75 @@
+.container {
+    max-width: 80%;
+    margin-inline: auto;
+    margin-top: 1rem;
+}
+
+header {
+    margin-bottom: 1rem;
+
+    input {
+        width: 80%;
+        padding: 5px 15px;
+        border: none;
+        border-bottom: 2px solid #555;
+        outline: none;
+        font-size: 1.2rem;
+    }
+
+    button {
+        padding: 5px 15px;
+        font-size: 1.2rem;
+        border: 1px solid black;
+        color: white;
+        background: black;
+    }
+}
+
+.main {
+    font-family: Roboto, "Open Sans", Arial, sans-serif;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.pokemon {
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 3px black;
+}
+
+.pokemon p {
+    font-size: 20px;
+    margin-bottom: 1rem;
+}
+
+.pokemon a {
+    font-size: 14px;
+    color: blueviolet;
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+    text-align: center;
+}
+
+.link-hidden {
+    display: none;
+    margin: 0;
+}
+
+.circle {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+.flex-align-center {
+    display: flex;
+    align-items: center;
+
+    * {
+        margin-right: 10px;
+    }
+}
