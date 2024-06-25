@@ -1,0 +1,27 @@
+:root{
+    --padding: 10px;
+}
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.title{
+    text-align: center;
+    color: hsl(120, 50%, 50%);
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+.container {
+    width: 100dvw;
+    height: 100dvh;
+    padding: calc(2 * var(--padding));
+}
+#map{
+    height: calc(60vh - 100px);
+}
+
+.user-info{
+    height: calc(40vh - 100px);
+    margin-top: 15px;
+}
