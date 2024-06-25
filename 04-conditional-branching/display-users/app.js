@@ -105,6 +105,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     locations.forEach(location => {
         location.addTo(map);
     });
+    // document.getElementById('user-infos').appendChild(displayUser(users[0]))
 })
+/**
+ * Create table header
+ * @param {User} user
+ * @return HTMLElement
+ */
+const tableHeader = (user) => {
+    const thead = document.createElement('thead');
+    const tr = document.createElement('tr');
 
+    for (let key of Object.keys(user)) {
+        const th = document.createElement('th');
+        th.innerHTML = key;
+        tr.appendChild(th);
+    }
 
+    thead.appendChild(tr);
+    return thead;
+}
+const tableBody = (users) => {
+    const tbody = document.createElement('tbody');
+    const tr = document.createElement('tr');
+
+    for (let user of users) {
+        for (let key of Object.keys(user)) {
+            const td = document.createElement('td');
+
+            if (typeof user[key] === 'string') {
+                td.innerHTML = user[key];
+            }
+
+            tr.appendChild(td)
+        }
+
+    }
+    tbody.appendChild(tr);
+}
+
+const displayUser = (users) => {
+    const table = document.createElement('table');
+    const thead = tableHeader(users[0]);
+
+    const tbody = tableBody(users);
+    return table;
+}
