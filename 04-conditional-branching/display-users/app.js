@@ -1,9 +1,9 @@
 /**
  * An object that represents the type of coordinates location of a user
-@typedef {{
-    lat: number,
-    lng: number
-}} GeomPoint
+ @typedef {{
+  lat: number,
+  lng: number
+  }} GeomPoint
  */
 /**
  * An object that represents the address of a user
@@ -39,18 +39,18 @@
 
 /**
  * Get users from this endpoint: https://jsonplaceholder.typicode.com/users
- * @param url
+ * @param {string} url
  * @return Promise
  */
 const getUsers = async (url) => {
-    try{
+    try {
         const response = await fetch(url);
         const data = await response.json();
         return data;
     } catch (error) {
         console.log(error);
     }
-}
+};
 
 /**
  * Function that create the backbone of the map
@@ -58,15 +58,12 @@ const getUsers = async (url) => {
  */
 const createMap = (element) => {
     return L.map(element, {
-        center: [0, 0],
-        zoom: 2,
-        attributionControl: true,
-        zoomControl: true,
+        center: [0, 0], zoom: 2, attributionControl: true, zoomControl: true,
     });
-}
+};
 
 /**
- *
+ * Create User Location Markers
  * @param {Array<User>} users
  * @return Object
  */
@@ -75,38 +72,31 @@ const createUserLocations = (users) => {
     for (let user of users) {
         const latLng = user.address.geo;
         const marker = L.marker(L.latLng(latLng.lat, latLng.lng));
-        marker.on('click', (e) => {
-            // Display user informations here
-            console.log(user);
-        })
+        marker.bindPopup(`<div>
+                <p>Name: ${user.name}</p>
+                <p>Email: ${user.email}</p>
+                <p>Phone: ${user.phone}</p>
+            </div>`).openPopup();
         markers.push(marker);
     }
     return markers;
-}
+};
 
 /**
  * Function that displays the map
+ * @return Object
  */
 const addMapToDOM = () => {
     const divMap = document.getElementById('map');
     const map = createMap(divMap);
     const openStreetMapTileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy;' + new Date().getFullYear(),
+        maxZoom: 19, attribution: '&copy;' + new Date().getFullYear(),
     });
     openStreetMapTileLayer.addTo(map);
     return map;
-}
+};
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const map = addMapToDOM();
-    const users = await getUsers("https://jsonplaceholder.typicode.com/users");
-    const locations =  createUserLocations(users);
-    locations.forEach(location => {
-        location.addTo(map);
-    });
-    // document.getElementById('user-infos').appendChild(displayUser(users[0]))
-})
+
 /**
  * Create table header
  * @param {User} user
@@ -114,40 +104,116 @@ document.addEventListener('DOMContentLoaded', async () => {
  */
 const tableHeader = (user) => {
     const thead = document.createElement('thead');
-    const tr = document.createElement('tr');
+    thead.innerHTML += `
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Address</th>
+            <th>Phone</th>
+            <th>Website</th>
+            <th>Company</th>
+        </tr>
+    `;
 
-    for (let key of Object.keys(user)) {
-        const th = document.createElement('th');
-        th.innerHTML = key;
-        tr.appendChild(th);
-    }
-
-    thead.appendChild(tr);
     return thead;
-}
+};
+
+/**
+ *Create a table body
+ * @param {Array<User>} users
+ * @return {HTMLTableSectionElement}
+ */
 const tableBody = (users) => {
     const tbody = document.createElement('tbody');
-    const tr = document.createElement('tr');
+    const userTableRow = (user) => {
+        const tr = document.createElement('tr');
+        const newUser = {
+            id: user.id,
+            name: user.name,
+            username: user.username,
+            email: user.email,
+            address: `${user.address.city} - ${user.address.street} - ${user.address.suite}`,
+            phone: user.phone,
+            website: user.website,
+            company: user.company.name,
+        };
 
-    for (let user of users) {
-        for (let key of Object.keys(user)) {
+        for (let key in newUser) {
             const td = document.createElement('td');
-
-            if (typeof user[key] === 'string') {
-                td.innerHTML = user[key];
+            if (String(key) === 'id') {
+                td.innerHTML = `<a id="user-${user[key]}" class="user-id">${newUser[key]}</a>`;
+            } else {
+                td.innerHTML = newUser[key];
             }
-
-            tr.appendChild(td)
+            tr.append(td);
         }
 
-    }
-    tbody.appendChild(tr);
-}
+        return tr;
+    };
+    const tableRows = users.map(user => userTableRow(user));
+    tbody.append(...tableRows);
+    return tbody;
+};
 
+/**
+ * Display Users In the DOM
+ * @param users
+ * @return {HTMLTableElement}
+ */
 const displayUser = (users) => {
     const table = document.createElement('table');
     const thead = tableHeader(users[0]);
-
     const tbody = tableBody(users);
+    table.append(thead, tbody);
     return table;
-}
+};
+
+/**
+ * Return user id
+ * @param {string} textId
+ */
+const getUserId = (textId) => {
+    // textId: 'user-1' or 'user-2', ...
+    return Number(textId.split('-')[1]);
+};
+
+/**
+ * Entry Point of program
+ */
+document.addEventListener('DOMContentLoaded', async () => {
+    const map = addMapToDOM();
+    const users = await getUsers("https://jsonplaceholder.typicode.com/users");
+    const locations = createUserLocations(users);
+    locations.forEach(location => {
+        location.addTo(map);
+    });
+
+    let links;
+    setTimeout(() => {
+        links = document.querySelectorAll("a.user-id");
+        links.forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const userId = getUserId(e.target.id);
+                const currentUser = users.find(user => user.id === userId);
+
+                if (!currentUser) {
+                    alert('User not locate on map');
+                    return;
+                }
+
+                const latLng = currentUser.address.geo;
+                map.setView(L.latLng(latLng.lat, latLng.lng), 3, {
+                    animate: true, duration: 0.5
+                });
+            });
+        });
+    }, 1000);
+
+
+    document.getElementById('user-infos').appendChild(displayUser(users));
+});
